@@ -1,0 +1,177 @@
+---
+import { getRelativeLocaleUrl } from "astro:i18n";
+import IconRss from "@/assets/icons/IconRss.svg";
+import { stripBase, stripLocale } from "@/utils/withBase";
+import { useTranslations } from "@/i18n";
+import config from "@/config";
+import YearProgress from "@/components/YearProgress.astro";
+
+type Props = {
+  pageTitle?: string;
+  titleClass?: string;
+  viewTransitionName?: string;
+};
+
+const { pageTitle, titleClass, viewTransitionName } = Astro.props;
+
+const { site, features } = config;
+
+const locale = Astro.currentLocale ?? config.site.lang;
+const t = useTranslations(locale);
+
+const relativePath = stripBase(Astro.url.pathname);
+const pathWithoutTrailingSlash =
+  relativePath.endsWith("/") && relativePath !== "/"
+    ? relativePath.slice(0, -1)
+    : relativePath;
+
+const currentPath = stripLocale(pathWithoutTrailingSlash, locale);
+
+const displayTitle = pageTitle || site.title;
+const defaultTitleClass = "text-nav-title text-base font-normal whitespace-nowrap font-ui";
+
+const isActive = (path: string) => {
+  const currentPathArray = currentPath.split("/").filter(p => p.trim());
+  const pathArray = path.split("/").filter(p => p.trim());
+  return currentPath === path || currentPathArray[0] === pathArray[0];
+};
+
+const rssHref = `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}rss.xml`;
+---
+
+<a
+  id="skip-to-content"
+  href="#main-content"
+  class="bg-background text-accent absolute inset-s-16 -top-full z-50 px-3 py-2 backdrop-blur-lg transition-all focus:top-4"
+>
+  {t.a11y.skipToContent}
+</a>
+
+<header class="app-layout">
+  <div class="relative flex items-end gap-2 leading-none">
+    <h1
+      class:list={[titleClass || defaultTitleClass]}
+      style={{ ...(viewTransitionName ? { viewTransitionName } : {}), fontFamily: 'var(--font-ui)' }}
+    >
+      {displayTitle}
+    </h1>
+    <a
+      href={rssHref}
+      aria-label="RSS Feed"
+      title="RSS Feed"
+      class="text-nav-title hover:text-foreground inline-flex translate-y-[-4px]"
+    >
+      <IconRss class="size-4" />
+    </a>
+  </div>
+
+  <YearProgress />
+
+  <nav
+    id="nav-menu"
+    class="relative mt-2 mb-2 flex items-center justify-between leading-none"
+  >
+    <ul
+      id="menu-items"
+      class="flex w-full flex-wrap items-center gap-x-5 gap-y-2 text-base font-medium sm:w-auto"
+    >
+      <li>
+        <a
+          href={getRelativeLocaleUrl(locale, "")}
+          class:list={[
+            "hover:text-accent inline-block py-1",
+            { "active-nav": currentPath === "/" },
+          ]}
+        >
+          {t.nav.home}
+        </a>
+      </li>
+      <li>
+        <a
+          href={getRelativeLocaleUrl(locale, "categories")}
+          class:list={[
+            "hover:text-accent inline-block py-1",
+            { "active-nav": isActive("/categories") },
+          ]}
+        >
+          {t.nav.categories}
+        </a>
+      </li>
+      {
+        features.showTags && (
+          <li>
+            <a
+              href={getRelativeLocaleUrl(locale, "tags")}
+              class:list={[
+                "hover:text-accent inline-block py-1",
+                { "active-nav": isActive("/tags") },
+              ]}
+            >
+              {t.nav.tags}
+            </a>
+          </li>
+        )
+      }
+      <li>
+        <a
+          href={getRelativeLocaleUrl(locale, "about")}
+          class:list={[
+            "hover:text-accent inline-block py-1",
+            { "active-nav": isActive("/about") },
+          ]}
+        >
+          {t.nav.about}
+        </a>
+      </li>
+      {
+        features.showArchives && (
+          <li>
+            <a
+              href={getRelativeLocaleUrl(locale, "archives")}
+              class:list={[
+                "hover:text-accent inline-block py-1",
+                { "active-nav": isActive("/archives") },
+              ]}
+            >
+              {t.nav.archives}
+            </a>
+          </li>
+        )
+      }
+      {
+        features.search !== false && (
+          <li>
+            <a
+              href={getRelativeLocaleUrl(locale, "search")}
+              class:list={[
+                "hover:text-accent inline-block py-1",
+                { "active-nav": isActive("/search") },
+              ]}
+              title={t.nav.search}
+              aria-label={t.nav.search}
+            >
+              Search
+            </a>
+          </li>
+        )
+      }
+      {
+        features.lightAndDarkMode && (
+          <li>
+            <button
+              id="theme-btn"
+              class="focus-outline text-nav-link inline-flex items-center py-1"
+              title={t.a11y.toggleTheme}
+              aria-label="auto"
+              aria-live="polite"
+            >
+              <span class="inline dark:hidden">{t.theme.dark}</span>
+              <span class="hidden dark:inline">{t.theme.light}</span>
+            </button>
+          </li>
+        )
+      }
+    </ul>
+  </nav>
+</header>
+

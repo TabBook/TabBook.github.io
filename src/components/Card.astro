@@ -1,0 +1,64 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { getPostUrl } from "@/utils/getPostPaths";
+import { toTransitionName } from "@/utils/toTransitionName";
+import Datetime from "./Datetime.astro";
+import config from "@/config";
+
+type Props = {
+  variant?: "h2" | "h3";
+} & CollectionEntry<"posts">;
+
+const { variant: Heading = "h2", id, data, filePath } = Astro.props;
+
+const { title, description, cover, ...props } = data;
+
+const buildCoverSrc = (): string | undefined => {
+  const src = typeof cover === "string" ? cover.trim() : "";
+  if (!src) return undefined;
+  if (src.startsWith("http://") || src.startsWith("https://")) return src;
+  if (src.includes("cos.lhasa.icu")) return src;
+  const segments = id.split("/").filter(Boolean);
+  const slug = segments.length ? segments[segments.length - 1] : "";
+  return `${config.features.coverUrl}/${slug}/${src}`;
+};
+
+const coverSrc = buildCoverSrc();
+---
+
+<li>
+  <div class="flex items-center gap-3">
+    {coverSrc && (
+      <div class="relative h-[50px] w-[50px] shrink-0 overflow-hidden rounded-md">
+        <div
+          data-skeleton-ph
+          class="skeleton skeleton-shimmer absolute inset-0"
+        />
+        <img
+          src={coverSrc}
+          alt={title}
+          loading="lazy"
+          data-skeleton
+          class="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500"
+        />
+      </div>
+    )}
+    <div class="min-w-0 flex-1">
+      <a
+        href={getPostUrl(id, filePath, Astro.currentLocale)}
+        class:list={[
+          "inline-block text-base font-normal",
+          "decoration-solid underline-offset-4 hover:underline",
+          "focus-visible:no-underline focus-visible:underline-offset-0",
+          "post-title",
+        ]}
+      >
+        <Heading transition:name={toTransitionName(title)}>
+          {title}
+        </Heading>
+      </a>
+      <Datetime {...props} />
+      <!-- <p>{description}</p> -->
+    </div>
+  </div>
+</li>

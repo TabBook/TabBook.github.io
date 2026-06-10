@@ -1,0 +1,185 @@
+---
+import { ClientRouter } from "astro:transitions";
+import { getRelativeLocaleUrl } from "astro:i18n";
+import { resolveDefaultOgImagePath } from "@/utils/resolveDefaultOgImagePath";
+import { getAssetPath } from "@/utils/withBase";
+import NavigationSkeleton from "@/components/skeleton/NavigationSkeleton.astro";
+import config from "@/config";
+import "@/styles/global.css";
+
+type Props = {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  canonicalURL?: string;
+};
+
+const { site } = config;
+
+const {
+  title = site.title,
+  description = site.description,
+  ogImage = resolveDefaultOgImagePath(config),
+  canonicalURL = new URL(Astro.url.pathname, Astro.site).href,
+} = Astro.props;
+
+const socialImageURL = new URL(ogImage, Astro.site ?? Astro.url);
+const rssHref = getRelativeLocaleUrl(
+  Astro.currentLocale ?? config.site.lang,
+  "rss.xml"
+);
+---
+
+<!doctype html>
+<html
+  dir={site.dir ?? "ltr"}
+  lang={Astro.currentLocale ?? site.lang}
+  class="overflow-y-scroll scroll-smooth"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href={getAssetPath("favicon.svg")} />
+    <link rel="icon" href={getAssetPath("favicon.ico")} />
+    <link rel="canonical" href={canonicalURL} />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Primary meta -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <meta name="author" content={site.author} />
+    <link rel="sitemap" href={getAssetPath("sitemap-index.xml")} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.title} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={socialImageURL} />
+
+    <!-- Twitter / X -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={socialImageURL} />
+
+    <!-- RSS autodiscovery -->
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={site.title}
+      href={new URL(rssHref, Astro.site)}
+    />
+
+    <!-- Filled at runtime by theme.ts to match the current background colour -->
+    <meta name="theme-color" content="" />
+
+    <!-- 无 JS 兜底：强制显示带骨架占位的图片，隐藏占位块 -->
+    <noscript>
+      <style>
+        img[data-skeleton] {
+          opacity: 1 !important;
+        }
+        [data-skeleton-ph] {
+          display: none !important;
+        }
+      </style>
+    </noscript>
+
+    <!-- Extra head content injected by child layouts (e.g. JSON-LD, article meta) -->
+    <slot name="head" />
+
+    {
+      site.googleVerification && (
+        <meta
+          name="google-site-verification"
+          content={site.googleVerification}
+        />
+      )
+    }
+
+    <!--
+      Inline FOUC-prevention script: sets data-theme on <html> before
+      the browser paints. Runs synchronously, no defer/async.
+    -->
+    <script
+      is:inline
+      define:vars={{ timeBasedTheme: config.timeBasedTheme }}
+    >
+      (function () {
+        function parseTimeToMinutes(value) {
+          if (typeof value !== "string") return undefined;
+          const match = /^(\d{1,2}):(\d{2})$/.exec(value);
+          if (!match) return undefined;
+          const h = Number(match[1]);
+          const m = Number(match[2]);
+          if (h < 0 || h > 23 || m < 0 || m > 59) return undefined;
+          return h * 60 + m;
+        }
+        function getTimeBasedTheme(cfg) {
+          if (!cfg || !cfg.enabled) return undefined;
+          const light = parseTimeToMinutes(cfg.lightStart);
+          const dark = parseTimeToMinutes(cfg.darkStart);
+          if (light === undefined || dark === undefined) return undefined;
+          const now = new Date();
+          const cur = now.getHours() * 60 + now.getMinutes();
+          // Interval [lightStart, darkStart) wraps if lightStart >= darkStart.
+          const inLight =
+            light < dark
+              ? cur >= light && cur < dark
+              : cur >= light || cur < dark;
+          return inLight ? "light" : "dark";
+        }
+        const stored = localStorage.getItem("theme");
+        let theme;
+        if (stored) {
+          theme = stored;
+        } else {
+          const auto = getTimeBasedTheme(timeBasedTheme);
+          if (auto) {
+            theme = auto;
+          } else {
+            theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+          }
+        }
+        const root = document.firstElementChild;
+        root?.setAttribute("data-theme", theme);
+        root?.classList.toggle("dark", theme === "dark");
+        // Expose value so theme.ts can skip re-detection.
+        window.__theme = { value: theme };
+      })();
+    </script>
+
+    <ClientRouter />
+  </head>
+  <body
+    class="site-outer-bg font-app text-foreground selection:bg-accent/75 selection:text-accent-foreground flex min-h-svh flex-col"
+  >
+    <!-- 站点框架容器：桌面端 768px 居中白卡 + 阴影；移动端全宽无阴影 -->
+    <div
+      id="site-frame"
+      class="mx-auto flex w-full flex-1 flex-col pt-6
+             sm:mt-[7vh] sm:w-[820px] sm:max-w-[72rem]
+             sm:bg-background sm:px-[3.75rem] sm:pt-[1.875rem]
+             sm:shadow-[0_8px_24px_rgba(0,0,0,0.15)]"
+    >
+      <slot />
+    </div>
+
+    <!-- 页面切换骨架屏覆盖层（仅慢导航 >250ms 时显示） -->
+    <NavigationSkeleton />
+
+    <script>
+      import "@/scripts/theme";
+      import "@/scripts/scrollbarProximity";
+      import { revealLoadedImages } from "@/scripts/imageSkeleton";
+      // 每次页面加载/切换后，揭示已带骨架占位的远程图片
+      document.addEventListener("astro:page-load", () => revealLoadedImages());
+    </script>
+  </body>
+</html>
