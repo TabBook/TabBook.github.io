@@ -35,10 +35,10 @@
  */
 :root,[data-theme="light"] {
   /* ===== 基础 ===== */
-  /* 页面背景色 */
-  --background: #ffffff;
-  /* 外层画布色 */
-  --page-background: #7db9de;
+  /* 页面背景色（Claude 暖米白） */
+  --background: #faf9f5;
+  /* 外层画布色（Claude 米色） */
+  --page-background: #f0eee6;
   /* 主要文字色 */
   --foreground: #0d141e;
   /* 强调色（链接、高亮） */
@@ -143,8 +143,8 @@
   --skeleton-highlight: rgba(255, 255, 255, 0.6);
 
   /* ===== 滚动条 ===== */
-  /* 滚动条滑块默认色（与外层画布一致） */
-  --scrollbar-thumb: var(--page-background);
+  /* 滚动条滑块默认色（暖灰，在米色背景上可见且不抢眼） */
+  --scrollbar-thumb: #d9d4c7;
   /* 滚动条滑块悬停/拖动色 */
-  --scrollbar-thumb-hover: color-mix(in oklab, var(--page-background) 70%, white);
+  --scrollbar-thumb-hover: color-mix(in oklab, #d9d4c7 70%, black);
 }
