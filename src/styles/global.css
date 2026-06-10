@@ -1,0 +1,168 @@
+@import "tailwindcss";
+@import "./theme-inline.css";
+@import "./theme-light.css";
+@import "./theme-dark.css";
+@import "./typography.css";
+@import "./skeleton.css";
+
+/* 切片字体：思源宋体（含中英文） */
+@import "../assets/fonts/SourceHanSerifSC-Regular/result.css";
+@import "../assets/fonts/SourceHanSerifSC-Bold/result.css";
+@import "rehype-callouts/theme/obsidian";
+
+/* 代码字体：Fira Code 可变字体单文件 */
+@font-face {
+  font-family: "FiraCode";
+  src: url("../assets/fonts/FiraCode-VF.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme {
+  --breakpoint-sm: 820px;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-accent/75;
+    scrollbar-width: auto;
+    scrollbar-color: var(--color-scrollbar-thumb) transparent;
+  }
+  /* 全局文字选中样式：使用主题色的半透明背景，文字颜色保持原样避免反色 */
+  ::selection {
+    background-color: var(--color-selection-bg);
+    color: inherit;
+  }
+  ::-moz-selection {
+    background-color: var(--color-selection-bg);
+    color: inherit;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--color-scrollbar-thumb);
+    transition: background-color 0.18s ease;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--color-scrollbar-thumb-hover);
+  }
+  /* 鼠标接近视口右边缘时，提前显示滚动条滑块 */
+  html.scrollbar-near,
+  html.scrollbar-near * {
+    scrollbar-color: var(--color-scrollbar-thumb-hover) transparent;
+  }
+  html.scrollbar-near *::-webkit-scrollbar-thumb {
+    background: var(--color-scrollbar-thumb-hover);
+  }
+  h1 {
+    font-family: var(--font-heading);
+  }
+  h2, h3 {
+    font-family: var(--font-heading-sub);
+  }
+  h4, h5, h6 {
+    font-family: var(--font-heading-sub);
+  }
+  code, pre, kbd, samp {
+    font-family: var(--font-code);
+  }
+  strong, b {
+    font-family: var(--font-bold);
+  }
+  nav {
+    font-family: var(--font-ui);
+  }
+  a,
+  button {
+    @apply outline-accent outline-offset-1 focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-dashed;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@utility max-w-app {
+  @apply max-w-3xl;
+}
+
+@utility app-layout {
+  @apply max-w-app mx-auto w-full px-4 sm:px-0;
+}
+
+/* 外层画布背景：桌面端展示 --page-background，移动端回退为内卡同色，等价于无外框 */
+.site-outer-bg {
+  @apply bg-page-background;
+}
+
+@media (max-width: 819px) {
+  .site-outer-bg {
+    @apply bg-background;
+  }
+}
+
+@utility active-nav {
+  @apply font-medium;
+}
+
+/* 导航栏文字配色 */
+nav a,
+nav button {
+  @apply text-nav-link;
+}
+nav a:hover,
+nav a.active-nav,
+nav button:hover {
+  @apply text-nav-link-active;
+}
+
+/* 文章标题配色 */
+.post-title {
+  @apply text-post-title;
+}
+
+:target {
+  scroll-margin-block: 1rem;
+}
+
+/* Theme toggle — View Transitions clip-path reveal */
+html[data-theme-transition]::view-transition-old(root),
+html[data-theme-transition]::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html[data-theme-transition]::view-transition-old(root) {
+  z-index: 1;
+}
+
+html[data-theme-transition]::view-transition-new(root) {
+  z-index: 2;
+}
+
+html[data-theme-transition="down"]::view-transition-new(root) {
+  animation: theme-reveal-down 0.45s ease-in-out forwards;
+}
+
+html[data-theme-transition="up"]::view-transition-new(root) {
+  animation: theme-reveal-up 0.45s ease-in-out forwards;
+}
+
+@keyframes theme-reveal-down {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes theme-reveal-up {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
