@@ -1,3 +1,6 @@
 allowBuilds:
   esbuild: true
   sharp: true
+
+# 关闭 pnpm 供应链「最小发布时长」策略，避免 CI 因依赖过新而拒绝安装
+minimumReleaseAge: 0
