@@ -15,7 +15,6 @@
  */
 import HeaderSkeleton from "./HeaderSkeleton.astro";
 import PostListSkeleton from "./PostListSkeleton.astro";
-import CategoryGridSkeleton from "./CategoryGridSkeleton.astro";
 import TagCloudSkeleton from "./TagCloudSkeleton.astro";
 import AboutSkeleton from "./AboutSkeleton.astro";
 import Skeleton from "./Skeleton.astro";
@@ -37,9 +36,6 @@ import config from "@/config";
     <main class="app-layout pb-4">
       <div data-route="home" hidden>
         <PostListSkeleton count={config.posts.perPage} />
-      </div>
-      <div data-route="categories" hidden>
-        <CategoryGridSkeleton count={config.posts.perPage} />
       </div>
       <div data-route="tags" hidden>
         <TagCloudSkeleton count={50} />
@@ -77,7 +73,6 @@ import config from "@/config";
   const DELAY = 250;
   // 顶层路由名集合，用于在去除 base 后剥离可能存在的语言前缀
   const KNOWN = new Set([
-    "categories",
     "tags",
     "friends",
     "about",
@@ -88,7 +83,6 @@ import config from "@/config";
 
   type RouteKey =
     | "home"
-    | "categories"
     | "tags"
     | "friends"
     | "about"
@@ -112,7 +106,6 @@ import config from "@/config";
 
     if (segs.length === 0) return "home";
     const [first, second] = segs;
-    if (first === "categories") return second ? "list" : "categories";
     if (first === "tags") return second ? "list" : "tags";
     if (first === "friends") return "friends";
     if (first === "about") return "about";

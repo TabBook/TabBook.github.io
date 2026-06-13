@@ -40,7 +40,7 @@
   /* 外层画布色（Claude 米色） */
   --page-background: #f0eee6;
   /* 主要文字色 */
-  --foreground: #0d141e;
+  --foreground: #000000;
   /* 强调色（链接、高亮） */
   --accent: #212832;
   /* 强调色上的文字色 */
@@ -61,15 +61,15 @@
   --year-progress-track: color-mix(in oklab, #e5e9f0 70%, transparent);
 
   /* ===== 导航栏 ===== */
-  /* 导航栏链接默认色 */
-  --nav-link: #2ea9df;
-  /* 导航栏链接悬停/激活色 */
-  --nav-link-active: var(--foreground);
+  /* 导航栏链接默认色（黑色文字） */
+  --nav-link: var(--foreground);
+  /* 导航栏链接悬停/激活色（悬停时高光亮起，仿深色主题的提亮效果） */
+  --nav-link-active: #2ea9df;
   /* 导航栏标题色 */
   --nav-title: var(--foreground);
 
   /* ===== 文章标题 ===== */
-  /* 文章标题色 */
+  /* 文章标题色（默认黑色，悬停高光见 global.css） */
   --post-title: var(--nav-link);
 
   /* ===== 正文标题 ===== */

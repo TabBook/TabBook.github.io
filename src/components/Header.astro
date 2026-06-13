@@ -86,17 +86,6 @@ const rssHref = `${import.meta.env.BASE_URL.replace(/\/?$/, "/")}rss.xml`;
           {t.nav.home}
         </a>
       </li>
-      <li>
-        <a
-          href={getRelativeLocaleUrl(locale, "categories")}
-          class:list={[
-            "hover:text-accent inline-block py-1",
-            { "active-nav": isActive("/categories") },
-          ]}
-        >
-          {t.nav.categories}
-        </a>
-      </li>
       {
         features.showTags && (
           <li>

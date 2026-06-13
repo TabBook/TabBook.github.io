@@ -189,16 +189,16 @@
     pre {
       @apply rounded-lg border border-code-block-border;
       padding: 0;
+    }
+    .astro-code code {
+      @apply flex-[1_0_100%] bg-inherit overflow-x-auto;
+      padding: 1.25rem 1rem;
       /* 隐藏代码块横向滚动条，保留滚动能力 */
       scrollbar-width: none;          /* Firefox */
       -ms-overflow-style: none;       /* 旧版 Edge / IE */
     }
-    pre::-webkit-scrollbar {
+    .astro-code code::-webkit-scrollbar {
       display: none;                  /* WebKit / Blink */
-    }
-    .astro-code code {
-      @apply flex-[1_0_100%] bg-inherit;
-      padding: 1.25rem 1rem;
     }
 
     /*
@@ -245,8 +245,8 @@
      */
     img {
       @apply mx-auto;
-      margin-top: var(--block-gap);
-      margin-bottom: var(--block-gap);
+      margin-top: 0;
+      margin-bottom: 0;
     }
 
     figcaption {
@@ -319,7 +319,7 @@
   /* ===== Code Blocks & Syntax Highlighting ===== */
   /* AstroPaper's Shiki integration — colors driven by CSS variables */
   .astro-code {
-    @apply flex text-(--shiki-light) [&_span]:text-(--shiki-light) !bg-code-block-bg;
+    @apply relative !overflow-visible flex text-(--shiki-light) [&_span]:text-(--shiki-light) !bg-code-block-bg;
   }
 
   .astro-code > span {
@@ -428,4 +428,14 @@
 /* 处理 Markdown 中 `>` 空行渲染出的空段落，避免双重视觉间距 */
 .app-prose .callout-content > p:empty {
   display: none;
+}
+
+/*
+ * Photosuite 客户端将 <img> 包裹为 <div.photosuite-item inline-block>
+ * inline-block 在 prose 的 <p> 中产生基线对齐额外空间（约 font descent）
+ * 导致图片下方文字在 JS 执行后发生布局偏移
+ * 此为消除该空间，与 img 未被包裹时的布局保持一致
+ */
+.app-prose .photosuite-item {
+  vertical-align: top;
 }
