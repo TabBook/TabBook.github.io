@@ -1,0 +1,135 @@
+---
+/**
+ * 文章侧边目录（TOC）
+ *
+ * 由 render(post) 返回的 headings 自动生成，取 h2/h3。
+ * 锚定文章右侧、sticky 跟随滚动，仅在 xl 及以上显示（窄屏不挤）。
+ * 配合下方脚本用 IntersectionObserver 高亮当前章节。
+ * 标题少于 2 个时不渲染。
+ */
+interface TocHeading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+const { headings = [] } = Astro.props as { headings: TocHeading[] };
+const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
+---
+
+{
+  toc.length >= 2 && (
+    <nav
+      id="post-toc"
+      aria-label="目录"
+      class="absolute end-full top-0 hidden h-full xl:block"
+    >
+      <div class="sticky top-24 me-6 max-h-[72vh] w-48 overflow-y-auto">
+        <p class="text-muted-foreground mb-2 text-xs font-medium tracking-wide">
+          目录
+        </p>
+        <ul class="border-border border-s text-sm">
+          {toc.map(h => (
+            <li>
+              <a
+                href={`#${h.slug}`}
+                data-toc-link={h.slug}
+                class:list={[
+                  "toc-link -ms-px block border-s border-transparent py-1 leading-snug",
+                  h.depth === 3 ? "ps-6" : "ps-3",
+                ]}
+              >
+                {h.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </nav>
+  )
+}
+
+<style>
+  .toc-link {
+    color: var(--color-muted-foreground);
+    transition:
+      color 0.18s ease,
+      border-color 0.18s ease;
+  }
+  .toc-link:hover {
+    color: var(--color-foreground);
+  }
+  .toc-link.active {
+    color: var(--color-foreground);
+    border-inline-start-color: var(--color-foreground);
+    font-weight: 500;
+  }
+</style>
+
+<script>
+  // 顶部参考线（px）：标题顶端越过此线即视为「进入该节」
+  const TOC_OFFSET = 120;
+  let tocCleanup: (() => void) | null = null;
+
+  function initPostToc() {
+    // 清理上一次（View Transitions 导航后避免重复绑定 / 引用旧节点）
+    if (tocCleanup) {
+      tocCleanup();
+      tocCleanup = null;
+    }
+
+    const nav = document.getElementById("post-toc");
+    if (!nav) return;
+    const links = Array.from(
+      nav.querySelectorAll<HTMLAnchorElement>(".toc-link")
+    );
+    if (!links.length) return;
+
+    // 按文档顺序收集 链接 ↔ 标题
+    const items = links
+      .map(link => {
+        const el = document.getElementById(link.dataset.tocLink || "");
+        return el ? { link, el } : null;
+      })
+      .filter((x): x is { link: HTMLAnchorElement; el: HTMLElement } => !!x);
+    if (!items.length) return;
+
+    let current = "";
+    const setActive = (id: string) => {
+      if (id === current) return;
+      current = id;
+      links.forEach(l =>
+        l.classList.toggle("active", l.dataset.tocLink === id)
+      );
+    };
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      // 当前节 = 最后一个顶端已越过参考线的标题
+      let activeId = items[0].el.id;
+      for (const { el } of items) {
+        if (el.getBoundingClientRect().top <= TOC_OFFSET) activeId = el.id;
+        else break;
+      }
+      setActive(activeId);
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    update();
+
+    tocCleanup = () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }
+
+  document.addEventListener("astro:page-load", initPostToc);
+</script>
