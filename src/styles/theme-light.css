@@ -63,8 +63,8 @@
   /* ===== 导航栏 ===== */
   /* 导航栏链接默认色（黑色文字） */
   --nav-link: var(--foreground);
-  /* 导航栏链接悬停/激活色（悬停时高光亮起，仿深色主题的提亮效果） */
-  --nav-link-active: #2ea9df;
+  /* 导航栏链接悬停/激活色（悬停时由黑变深灰，柔和不刺眼） */
+  --nav-link-active: #5a5a5a;
   /* 导航栏标题色 */
   --nav-title: var(--foreground);
 
