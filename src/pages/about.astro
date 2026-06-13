@@ -33,9 +33,9 @@ const blogStats = await getPostsMetrics();
       data-running-days={blogStats.runningDays}
       data-total-posts={blogStats.totalPosts}
       data-total-words={blogStats.totalWordsInWan}
-      data-start-year="2018"
-      data-start-month="8"
-      data-start-day="31"
+      data-start-year="2026"
+      data-start-month="2"
+      data-start-day="18"
       style="display: none;"
     >
     </div>
@@ -79,13 +79,21 @@ const blogStats = await getPostsMetrics();
   function readStats() {
     const statsData = document.getElementById("blog-stats-data");
     if (!statsData) return null;
+    const startYear = parseInt(statsData.dataset.startYear || "2026");
+    const startMonth = parseInt(statsData.dataset.startMonth || "2");
+    const startDay = parseInt(statsData.dataset.startDay || "18");
+    // 运行天数按访问当天实时计算，无需重新部署即可每日自增
+    const start = new Date(startYear, startMonth - 1, startDay);
+    const runningDays = Math.floor(
+      (Date.now() - start.getTime()) / (1000 * 3600 * 24)
+    );
     return {
-      runningDays: parseInt(statsData.dataset.runningDays || "0"),
+      runningDays,
       totalPosts: parseInt(statsData.dataset.totalPosts || "0"),
       totalWords: parseFloat(statsData.dataset.totalWords || "0"),
-      startYear: parseInt(statsData.dataset.startYear || "2018"),
-      startMonth: parseInt(statsData.dataset.startMonth || "8"),
-      startDay: parseInt(statsData.dataset.startDay || "31"),
+      startYear,
+      startMonth,
+      startDay,
     };
   }
 
