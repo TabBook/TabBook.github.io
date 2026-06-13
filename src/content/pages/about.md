@@ -13,5 +13,3 @@ description: "关于我和我的博客"
 
 - 📮 邮箱：[fiqancii@gmail.com](mailto:fiqancii@gmail.com)
 - 🐙 GitHub：[@TabBook](https://github.com/TabBook)
-
-> 本博客主题基于开源项目 [Astro Paper](https://github.com/satnaing/astro-paper) / [Astro Lite](https://github.com/achuanya/astro-lite) 二次开发。

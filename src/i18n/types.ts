@@ -33,9 +33,6 @@ export interface UIStrings {
     recentPosts: string;
     allPosts: string;
   };
-  footer: {
-    copyright: (year: number) => string;
-  };
   pages: {
     tagTitle: string;
     tagDesc: string;

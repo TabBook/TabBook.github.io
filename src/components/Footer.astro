@@ -1,16 +1,12 @@
 ---
 import type { HTMLAttributes } from "astro/types";
 import Socials from "./Socials.astro";
-import { useTranslations } from "@/i18n";
 
 type Props = {
   noMarginTop?: boolean;
 } & HTMLAttributes<"footer">;
 
 const { noMarginTop = false, class: className, ...attrs } = Astro.props;
-
-const t = useTranslations(Astro.currentLocale);
-const currentYear = new Date().getFullYear();
 ---
 
 <footer
@@ -18,11 +14,42 @@ const currentYear = new Date().getFullYear();
   {...attrs}
 >
   <div
-    class="border-border mt-8 flex flex-col items-center justify-between border-t py-8 sm:mt-12 sm:flex-row-reverse sm:py-6"
+    class="border-border mt-8 flex flex-col items-center justify-between gap-3 border-t py-8 sm:mt-12 sm:flex-row-reverse sm:gap-4 sm:py-6"
   >
     <Socials />
-    <div class="my-2 flex items-center whitespace-nowrap">
-      <span>{t.footer.copyright(currentYear)}</span>
-    </div>
+    <a
+      id="hitokoto"
+      href="https://hitokoto.cn/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="每日一言"
+      class="text-muted-foreground hover:text-foreground my-1 max-w-[34ch] text-center text-sm leading-relaxed opacity-0 transition-[opacity,color] duration-500 sm:my-0 sm:max-w-[48ch] sm:text-start"
+    ></a>
   </div>
 </footer>
+
+<script>
+  // 每日一言（Hitokoto）：从 API 拉取一句话填入页脚，加载完成后淡入。
+  // 监听 astro:page-load，确保首次加载与 View Transitions 导航后都会刷新。
+  async function loadHitokoto() {
+    const el = document.getElementById("hitokoto");
+    if (!el) return;
+    try {
+      const res = await fetch("https://v1.hitokoto.cn/");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      el.textContent = data.hitokoto || "";
+      if (data.from) {
+        el.title = data.from_who ? `${data.from_who}《${data.from}》` : data.from;
+      }
+    } catch {
+      // 网络失败时保持隐藏，不影响页脚其余内容
+      el.textContent = "";
+      return;
+    }
+    el.classList.remove("opacity-0");
+    el.classList.add("opacity-100");
+  }
+
+  document.addEventListener("astro:page-load", loadHitokoto);
+</script>

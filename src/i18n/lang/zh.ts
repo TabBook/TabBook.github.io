@@ -35,9 +35,6 @@ export default {
     recentPosts: "最近文章",
     allPosts: "全部文章",
   },
-  footer: {
-    copyright: (year: number) => `© 2018 - ${year} Astro & Artalk`,
-  },
   pages: {
     tagTitle: "标签",
     tagDesc: "该标签下的所有文章",
