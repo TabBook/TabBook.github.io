@@ -56,7 +56,7 @@
 
   /* ===== 年度进度条 ===== */
   /* 用强调色高亮已过去的部分 */
-  --year-progress-fill: var(--page-background);
+  --year-progress-fill: var(--foreground);
   /* 未到部分的轨道色，该变量不能像 dark 继承 --border */
   --year-progress-track: color-mix(in oklab, #e5e9f0 70%, transparent);
 
