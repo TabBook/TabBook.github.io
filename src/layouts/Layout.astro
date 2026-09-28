@@ -160,6 +160,8 @@ const rssHref = getRelativeLocaleUrl(
   <body
     class="site-outer-bg font-app text-foreground selection:bg-accent/75 selection:text-accent-foreground flex min-h-svh flex-col"
   >
+    <script is:inline src={getAssetPath("tabbook-loader.js")}></script>
+
     <!-- 站点框架容器：桌面端 768px 居中白卡 + 阴影；移动端全宽无阴影 -->
     <div
       id="site-frame"
